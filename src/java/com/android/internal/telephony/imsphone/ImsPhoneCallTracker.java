@@ -105,6 +105,7 @@ import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.telephony.dataconnection.DataEnabledSettings;
 import com.android.internal.telephony.dataconnection.DataEnabledSettings.DataEnabledChangedReason;
 import com.android.internal.telephony.gsm.SuppServiceNotification;
+import com.android.internal.telephony.imsphone.ImsPhone.ImsDialArgs;
 import com.android.internal.telephony.metrics.CallQualityMetrics;
 import com.android.internal.telephony.metrics.TelephonyMetrics;
 import com.android.internal.telephony.nano.TelephonyProto.ImsConnectionState;
@@ -308,6 +309,7 @@ public class ImsPhoneCallTracker extends CallTracker implements ImsPullCall {
     private static final int EVENT_REDIAL_WIFI_E911_TIMEOUT = 29;
     private static final int EVENT_ANSWER_WAITING_CALL = 30;
     private static final int EVENT_RESUME_NOW_FOREGROUND_CALL = 31;
+    private static final int EVENT_REDIAL_WITHOUT_RTT = 32;
     private static final int EVENT_RETRY_ON_IMS_WITHOUT_RTT = 40;
 
     private static final int TIMEOUT_HANGUP_PENDINGMO = 500;
@@ -433,7 +435,8 @@ public class ImsPhoneCallTracker extends CallTracker implements ImsPullCall {
     private HoldSwapState mHoldSwitchingState = HoldSwapState.INACTIVE;
 
     private String mLastDialString = null;
-    private PhoneInternalInterface.DialArgs mLastDialArgs = null;
+    private ImsDialArgs mLastDialArgs = null;
+
     /**
      * Listeners to changes in the phone state.  Intended for use by other interested IMS components
      * without the need to register a full blown {@link android.telephony.PhoneStateListener}.
@@ -3708,7 +3711,6 @@ public class ImsPhoneCallTracker extends CallTracker implements ImsPullCall {
                 } catch (CallStateException e) {
                     sendCallStartFailedDisconnect(callInfo.first, callInfo.second);
                 }
-
                 break;
             }
         }
