@@ -60,6 +60,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.AudioSystem;
+import android.media.MediaMetadata;
+import android.media.session.MediaController;
+import android.media.session.PlaybackState;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
@@ -187,7 +190,7 @@ public class VolumeDialogImpl implements VolumeDialog {
     private boolean mExpanded;
 
     private boolean mLeftVolumeRocker = false;
-
+    private XMusic mMusicText;
     private SettingsObserver settingsObserver;
     private boolean isMediaShowing = true;
     private boolean isRingerShowing = false;
@@ -222,6 +225,11 @@ public class VolumeDialogImpl implements VolumeDialog {
 
         mController.addCallback(mControllerCallbackH, mHandler);
         mController.getState();
+    }
+
+    @Override
+    public void setMediaController(MediaController controller) {
+        mMusicText.initDependencies(controller, mSysUIContext);
     }
 
     @Override
@@ -268,7 +276,11 @@ public class VolumeDialogImpl implements VolumeDialog {
         });
 
         mDialogView = mDialog.findViewById(R.id.volume_dialog);
+        mMusicText = mDialog.findViewById(R.id.music_main);
         mDialogView.setAlpha(0);
+
+        mMusicText.setLayoutDirection(
+                mLeftVolumeRocker ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_LTR);
 
         mDialogView.setOnHoverListener((v, event) -> {
             int action = event.getActionMasked();
@@ -1566,6 +1578,11 @@ public class VolumeDialogImpl implements VolumeDialog {
         public void onCaptionComponentStateChanged(
                 Boolean isComponentEnabled, Boolean fromTooltip) {
             updateODICaptionsH(isComponentEnabled, fromTooltip);
+        }
+
+        @Override
+        public void onMetadataOrStateChanged(MediaMetadata metadata, @PlaybackState.State int state, MediaController mediaController) {
+            mMusicText.onMetadataOrStateChanged(metadata, state, mediaController);
         }
     };
 

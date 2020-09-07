@@ -47,6 +47,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.AudioSystem;
+import android.media.MediaMetadata;
+import android.media.session.MediaController;
+import android.media.session.PlaybackState;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
@@ -171,6 +174,7 @@ public class VolumeDialogImpl implements VolumeDialog {
     private boolean mHovering = false;
     private int mDensity;
 
+    private XMusic mMusicText;
     private SettingsObserver settingsObserver;
     private boolean isMediaShowing = true;
     private boolean isRingerShowing = false;
@@ -210,6 +214,11 @@ public class VolumeDialogImpl implements VolumeDialog {
 
         final Configuration currentConfig = mContext.getResources().getConfiguration();
         mDensity = currentConfig.densityDpi;
+    }
+
+    @Override
+    public void setMediaController(MediaController controller) {
+        mMusicText.initDependencies(controller, mSysUIContext);
     }
 
     @Override
@@ -257,6 +266,7 @@ public class VolumeDialogImpl implements VolumeDialog {
         });
 
         mDialogView = (ViewGroup) mDialog.findViewById(R.id.volume_dialog);
+        mMusicText = mDialog.findViewById(R.id.music_main);
         mDialogView.setOnHoverListener(new View.OnHoverListener() {
             @Override
             public boolean onHover(View v, MotionEvent event) {
@@ -1337,6 +1347,11 @@ public class VolumeDialogImpl implements VolumeDialog {
         @Override
         public void onCaptionComponentStateChanged(
                 Boolean isComponentEnabled, Boolean fromTooltip) {}
+
+        @Override
+        public void onMetadataOrStateChanged(MediaMetadata metadata, @PlaybackState.State int state, MediaController mediaController) {
+            mMusicText.onMetadataOrStateChanged(metadata, state, mediaController);
+        }
     };
 
     private final OnClickListener mClickExpand = new OnClickListener() {
